@@ -62,7 +62,7 @@ void NetworkDiscovery::Update()
     }
 
     // Le reste du code est fourni...
-}
+
 ```
 
 ## Partie 2 : Connexion TCP

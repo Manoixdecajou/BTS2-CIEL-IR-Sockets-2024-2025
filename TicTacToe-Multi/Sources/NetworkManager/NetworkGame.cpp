@@ -18,20 +18,49 @@ NetworkGame::~NetworkGame()
 
 bool NetworkGame::HostGame()
 {
-	// À compléter :
+	sf::Socket::Status status;
 	// 1. Configurer le listener TCP sur NetworkPort
-	// 2. Ajouter le listener au sélecteur
-	// 3. Définir _isServer à true
+	status = _listener.listen(NetworkPort)
+	if (status == sf::Socket::Done)
+	{
+		// 2. Ajouter le listener au sélecteur
+		_selector.add(_listener);
+
+		// 3. Définir _isServer à true
+		_isServer = true;
+	}
+
 	return true;
 }
 
 bool NetworkGame::WaitingAnOpponent()
 {
-	// À compléter :
+	sf::TcpSocket* client = new sf::TcpSocket;
+
 	// 1. Vérifier si une connexion est en attente avec le sélecteur
-	// 2. Accepter la connexion
+	_listener.accept(*_selector);
+
+	if (_selector.isReady(_listener))
+	{
+		// 2. Accepter la connexion
+		_listener.accept(_socket);
+		
+
+	}
+	else
+	{
+		return false;
+	}
+
 	// 3. Envoyer le nom du joueur local
+
+	std::string name = &GetLocalPlayerName();
+	sf::Packet packet;
+	packet << MagicPacket << name;
+	_socket.send(packet, _socket.getRemoteAddress());
 	// 4. Configurer la connexion
+	_isConnectionEstablish = true;
+
 	return true;
 }
 
@@ -103,9 +132,20 @@ void NetworkGame::StopPlaying()
 bool NetworkGame::SendMove(int row, int col)
 {
 	// À compléter :
+	sf::Socket::Status status = TryToReceivePacket(PacketType::Move);
+	
 	// 1. Créer un paquet avec MagicPacket et PacketType::Move
+	sf::Packet packet << MagicPacket << PacketType::Move; 
+	//PacketType::Move packet << MagicPacket;
+
 	// 2. Ajouter les coordonnées row et col
+	packet << row << col;
+
+
 	// 3. Envoyer le paquet
+	_socket.send(packet);
+
+
 	return true;
 }
 
@@ -179,10 +219,23 @@ sf::Socket::Status NetworkGame::TryToReceivePacket(PacketType packetTypeExpect)
 {
 	// À compléter :
 	// 1. Vérifier si des données sont disponibles
-	// 2. Recevoir le paquet
-	// 3. Vérifier le MagicPacket
-	// 4. Vérifier le type de paquet
-	return sf::Socket::Done;
+	if (_selector.isReady(_socket))
+	{
+		// 2. Recevoir le paquet
+		if (_socket.receive(_receivedPacket))
+		{ // 3. Vérifier le MagicPacket
+			if ((_receivedPacket >> magicPacket >> data) && magicPacket == MagicPacket)
+			{
+				// 4. Vérifier le type de paquet
+				if (PacketType data == packetTypeExpect)
+				{
+					return sf::Socket::Done;
+				}
+			}
+		}
+		
+	}
+	return sf::Socket::Error;
 }
 
 std::string_view PacketTypeToString(PacketType packetType)

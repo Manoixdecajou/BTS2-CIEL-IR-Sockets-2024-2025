@@ -148,12 +148,24 @@ Complétez la méthode `NetworkGame::TryToReceivePacket()` :
 ```cpp
 sf::Socket::Status NetworkGame::TryToReceivePacket(PacketType packetTypeExpect)
 {
-    // À compléter :
-    // 1. Vérifier si des données sont disponibles
-    // 2. Recevoir le paquet
-    // 3. Vérifier le MagicPacket
-    // 4. Vérifier le type de paquet
-    return sf::Socket::Done;
+   // 1. Vérifier si des données sont disponibles
+	if (_selector.isReady(_socket))
+	{
+		// 2. Recevoir le paquet
+		if (_socket.receive(_receivedPacket))
+		{ // 3. Vérifier le MagicPacket
+			if ((_receivedPacket >> magicPacket >> data) && magicPacket == MagicPacket)
+			{
+				// 4. Vérifier le type de paquet
+				if (PacketType data == packetTypeExpect)
+				{
+					return sf::Socket::Done;
+				}
+			}
+		}
+		
+	}
+	return sf::Socket::Error;
 }
 ```
 

@@ -47,19 +47,19 @@ void NetworkDiscovery::Update()
 {
     uint64_t nowMs = GetTimeMs();
 
-    if(_isBroadcastEnabled)
-    {
-	
-	// 1. Vérifier si l'écart de temps entre maintenant et la dernière déclaration de temps est supérieure ou égale à DeclareGameServerDelayMs
-	if (( uint64_t nowMs - GetTimeMs() ) >= _lastDeclareGameServerTimeMs)
+	if(_isBroadcastEnabled)
 	{
-		// 2. Créer un paquet avec MagicPacket et _localServerName
-		sf::Packet packet(MagicPacket, _localServerName);
+		// 1. Vérifier si l'écart de temps entre maintenant et la dernière déclaration de temps est supérieure ou égale à DeclareGameServerDelayMs
+		if ((nowMs - _lastDeclareGameServerTimeMs ) >= DeclareGameServerDelayMs)
+		{
+			// 2. Créer un paquet avec MagicPacket et _localServerName
+			sf::Packet packet;
+			packet << MagicPacket << _localServerName;
 
-		// 3. Envoyer le paquet en broadcast
-		packet.StartBroadcast();
+			// 3. Envoyer le paquet en broadcast
+			_socket.send(packet,sf::IpAddress::Broadcast);
+		}
 	}
-    }
 
     // Le reste du code est fourni...
 

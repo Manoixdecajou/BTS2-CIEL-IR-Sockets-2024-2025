@@ -135,10 +135,21 @@ Implémentez la méthode `NetworkGame::SendMove()` :
 bool NetworkGame::SendMove(int row, int col)
 {
     // À compléter :
-    // 1. Créer un paquet avec MagicPacket et PacketType::Move
-    // 2. Ajouter les coordonnées row et col
-    // 3. Envoyer le paquet
-    return true;
+	sf::Socket::Status status = TryToReceivePacket(PacketType::Move);
+	
+	// 1. Créer un paquet avec MagicPacket et PacketType::Move
+	sf::Packet packet << MagicPacket << PacketType::Move; 
+	//PacketType::Move packet << MagicPacket;
+
+	// 2. Ajouter les coordonnées row et col
+	packet << row << col;
+
+
+	// 3. Envoyer le paquet
+	_socket.send(packet);
+
+
+	return true;
 }
 ```
 

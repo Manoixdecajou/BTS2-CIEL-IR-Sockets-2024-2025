@@ -49,15 +49,16 @@ void NetworkDiscovery::Update()
 
     if(_isBroadcastEnabled)
     {
-        // À compléter :
-        // 1. Vérifier si l'écart de temps entre maintenant et la dernière déclaration de temps est supérieure ou égale à DeclareGameServerDelayMs
-        if ( ( nowMs - this->GetTimeMs() )>= _lastDeclareGameServerTimeMs)
-        {
-            _localServerName(localServerName)
+	
+	// 1. Vérifier si l'écart de temps entre maintenant et la dernière déclaration de temps est supérieure ou égale à DeclareGameServerDelayMs
+	if (( uint64_t nowMs - GetTimeMs() ) >= _lastDeclareGameServerTimeMs)
+	{
+		// 2. Créer un paquet avec MagicPacket et _localServerName
+		sf::Packet packet(MagicPacket, _localServerName);
 
-        }
-        // 2. Créer un paquet avec MagicPacket et _localServerName
-        // 3. Envoyer le paquet en broadcast
+		// 3. Envoyer le paquet en broadcast
+		packet.StartBroadcast();
+	}
     }
 
     // Le reste du code est fourni...

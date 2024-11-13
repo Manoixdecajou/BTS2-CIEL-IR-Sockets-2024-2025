@@ -58,6 +58,8 @@ void NetworkDiscovery::Update()
 
 			// 3. Envoyer le paquet en broadcast
 			_socket.send(packet,sf::IpAddress::Broadcast);
+
+			_lastDeclareGameServerTimeMs = nowMs;
 		}
 	}
 

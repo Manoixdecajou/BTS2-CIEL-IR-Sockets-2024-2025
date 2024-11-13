@@ -18,11 +18,24 @@ Complétez la méthode `NetworkDiscovery::Init()` pour :
 ```cpp
 bool NetworkDiscovery::Init()
 {
-    // À compléter :
-    // 1. Essayer de lier le socket au port NetworkPort
-    // 2. Si échec, essayer les ports suivants jusqu'à succès
-    // 3. Ajouter le socket au sélecteur
-    return true;
+    uint16_t port = NetworkPort;
+	// 1. Essayer de lier le socket au port NetworkPort
+	sf::Socket::Status status;
+	status = _socket.bind(port);
+	
+	if (status  != sf::Socket::Done)
+	{
+		while (status != sf::Socket::Done)
+		{
+			// 2. Si échec, essayer les ports suivants jusqu'à succès
+			port += 1;
+			status = _socket.bind(port);
+		}
+			
+	}
+	// 3. Ajouter le socket au sélecteur
+	_socketSelector.add(_socket);
+	return true;
 }
 ```
 
@@ -38,6 +51,11 @@ void NetworkDiscovery::Update()
     {
         // À compléter :
         // 1. Vérifier si l'écart de temps entre maintenant et la dernière déclaration de temps est supérieure ou égale à DeclareGameServerDelayMs
+        if ( ( nowMs - this->GetTimeMs() )>= _lastDeclareGameServerTimeMs)
+        {
+            _localServerName(localServerName)
+
+        }
         // 2. Créer un paquet avec MagicPacket et _localServerName
         // 3. Envoyer le paquet en broadcast
     }

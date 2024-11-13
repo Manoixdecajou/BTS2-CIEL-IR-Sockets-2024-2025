@@ -73,10 +73,17 @@ Complétez la méthode `NetworkGame::HostGame()` :
 ```cpp
 bool NetworkGame::HostGame()
 {
-    // À compléter :
-    // 1. Configurer le listener TCP sur NetworkPort
-    // 2. Ajouter le listener au sélecteur
-    // 3. Définir _isServer à true
+    	sf::Socket::Status status;
+	// 1. Configurer le listener TCP sur NetworkPort
+	status = _listener.listen(NetworkPort)
+	if (status == sf::Socket::Done)
+	{
+		// 2. Ajouter le listener au sélecteur
+		_selector.add(_listener);
+
+		// 3. Définir _isServer à true
+		_isServer = true;
+	}
     return true;
 }
 ```
@@ -87,12 +94,33 @@ Complétez la méthode `NetworkGame::WaitingAnOpponent()` :
 ```cpp
 bool NetworkGame::WaitingAnOpponent()
 {
-    // À compléter :
-    // 1. Vérifier si une connexion est en attente avec le sélecteur
-    // 2. Accepter la connexion
-    // 3. Envoyer le nom du joueur local
-    // 4. Configurer la connexion
-    return true;
+    sf::TcpSocket* client = new sf::TcpSocket;
+
+	// 1. Vérifier si une connexion est en attente avec le sélecteur
+	_listener.accept(*_selector);
+
+	if (_selector.isReady(_listener))
+	{
+		// 2. Accepter la connexion
+		_listener.accept(_socket);
+		
+
+	}
+	else
+	{
+		return false;
+	}
+
+	// 3. Envoyer le nom du joueur local
+
+	std::string name = &GetLocalPlayerName();
+	sf::Packet packet;
+	packet << MagicPacket << name;
+	_socket.send(packet, _socket.getRemoteAddress());
+	// 4. Configurer la connexion
+	_isConnectionEstablish = true;
+
+	return true;
 }
 ```
 
